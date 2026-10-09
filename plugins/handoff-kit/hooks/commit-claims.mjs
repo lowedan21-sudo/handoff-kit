@@ -11,7 +11,7 @@ export function extractMessage(cmd) {
   // `commit` must be git's subcommand (after global options), not a word later in the line.
   if (!/\bgit(?:\s+-[cC]\s+\S+|\s+--?[\w-]+(?:=\S+)?)*\s+commit\b/.test(cmd) || /--amend\b.*--no-edit/.test(cmd)) return null;
   const parts = [];
-  const re = /(?:^|\s)(?:-m|--message)(?:\s+|=)("([^"\\]|\\.)*"|'[^']*'|\S+)/g;
+  const re = /(?:^|\s)(?:-[a-zA-Z]*m|--message)(?:\s+|=)("([^"\\]|\\.)*"|'[^']*'|\S+)/g;
   let m;
   while ((m = re.exec(cmd))) parts.push(m[1].replace(/^["']|["']$/g, ''));
   const heredoc = cmd.match(/<<-?\s*'?(\w+)'?\s*\n([\s\S]*?)\n\1/);
