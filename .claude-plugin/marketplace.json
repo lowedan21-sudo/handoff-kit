@@ -1,0 +1,12 @@
+{
+  "name": "handoff-kit",
+  "description": "handoff-kit: resumable, budget-friendly long Claude Code sessions",
+  "owner": { "name": "Dan Lowe" },
+  "plugins": [
+    {
+      "name": "handoff-kit",
+      "source": "./plugins/handoff-kit",
+      "description": "Handoff file with pre-compaction nudge and lossless auto-trim, run-queue, lessons-review, configurable guard, commit-claims"
+    }
+  ]
+}

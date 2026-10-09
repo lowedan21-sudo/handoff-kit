@@ -1,0 +1,7 @@
+{
+  "name": "handoff-kit",
+  "version": "0.1.0",
+  "description": "Keep long Claude Code sessions cheap and resumable: a handoff file Claude keeps current (nudged before auto-compaction, size-limited with a lossless archive), one-fresh-subagent-per-task queues, lessons turned into hooks and skills, a configurable hard-stop guard, and a commit-message check.",
+  "author": { "name": "Dan Lowe" },
+  "license": "MIT"
+}

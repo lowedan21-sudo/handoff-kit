@@ -1,0 +1,6 @@
+{
+  "paths": ["src/billing/**", "**/migrations/**", "src/auth/**"],
+  "commands": ["\\bterraform\\s+apply\\b", "\\bprisma\\s+migrate\\s+deploy\\b", "\\bkubectl\\s+delete\\b"],
+  "tools": ["^mcp__.*__(delete|drop)_"],
+  "unlock_env": "GUARD_AUTHORIZED"
+}
