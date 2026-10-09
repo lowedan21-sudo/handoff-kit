@@ -7,7 +7,7 @@
 import { readFileSync, existsSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { join, relative } from 'node:path';
-import { findHandoff, trimFile, repoRoot } from './handoff.mjs';
+import { findHandoff, trimFile, repoRoot, waitingItems } from './handoff.mjs';
 import { report } from './handoff-trim.mjs';
 
 const git = (cwd, args, timeout = 4000) =>
@@ -41,6 +41,8 @@ try {
     try { trimmed = report(trimFile(handoff), relative(top, handoff)); } catch {}
     if (trimmed) lines.push(trimmed);
     lines.push(`Handoff: ${relative(top, handoff)}. Read its Now and Next sections before planning; update it after each task (done, next, learned).`);
+    const waiting = waitingItems(readFileSync(handoff, 'utf8'));
+    if (waiting.length) lines.push(`Waiting on the owner (${waiting.length} open; tell them early, tick [x] when answered):\n${waiting.slice(0, 10).join('\n')}`);
   }
   if (lines.length) process.stdout.write(lines.join('\n') + '\n');
 } catch {

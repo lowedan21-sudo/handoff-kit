@@ -45,7 +45,9 @@ This only matters with a 1M-context model. Pick a value that suits you, and set 
 
 Copy `plugins/handoff-kit/templates/HANDOFF.md` to `HANDOFF.md` or `docs/HANDOFF.md` in your repo. If `$HANDOFF_PATH` is set, the hooks use that file. Otherwise they check `HANDOFF.md`, `docs/HANDOFF.md`, `docs/AI-HANDOFF.md` and `.claude/HANDOFF.md`. When more than one of these exists, the one containing the marker wins. If none or several contain it, the most recently modified file wins, so an old snapshot left beside the live file isn't picked.
 
-Its sections are **Now**, **Next** (the queue, with the first step of the first item), **Blocked**, **Done** and **Learned**. Claude updates it after every task, and run-queue does so before starting the next item.
+Its sections are **Now**, **Next** (the queue, with the first step of the first item), **Waiting on you**, **Blocked**, **Done** and **Learned**.
+
+**Waiting on you** holds decisions and steps only you can take, as `- [ ]` lines. Every session start lists the open ones, until each is ticked `- [x]`, so nothing you owe gets lost between sessions. Claude updates it after every task, and run-queue does so before starting the next item.
 
 ### Auto-trim rules
 

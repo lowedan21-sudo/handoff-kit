@@ -36,7 +36,13 @@ export function findHandoff(cwd) {
   return marked ?? found.sort((a, b) => statSync(b).mtimeMs - statSync(a).mtimeMs)[0];
 }
 
-export const archivePathFor = (p) => join(dirname(p), basename(p, extname(p)) + '-archive' + extname(p));
+// Unchecked "- [ ]" lines under "## Waiting on you"; the session-start hook lists them every session.
+export function waitingItems(text) {
+  const m = text.match(/^## Waiting on you[^\n]*\n([\s\S]*?)(?=^## |(?![\s\S]))/m);
+  return m ? m[1].split(/\r?\n/).filter((l) => /^\s*- \[ \]/.test(l)).map((l) => l.trim()) : [];
+}
+
+export const archivePathFor =(p) => join(dirname(p), basename(p, extname(p)) + '-archive' + extname(p));
 
 // Split a section body into entries: a top-level "- " bullet plus its continuation lines.
 // Lines before the first bullet (comments, prose) are kept as a fixed preamble.

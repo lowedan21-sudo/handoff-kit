@@ -1,5 +1,5 @@
 // Run: node handoff.test.mjs
-import { trimText, trimFile, archivePathFor, findHandoff, MARKER } from './handoff.mjs';
+import { trimText, trimFile, archivePathFor, findHandoff, waitingItems, MARKER } from './handoff.mjs';
 import { writeFileSync, readFileSync, mkdtempSync, existsSync, mkdirSync, utimesSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -93,5 +93,12 @@ t('no tmp file left', !existsSync(p + '.tmp'));
   t('none: null', findHandoff(mkdtempSync(join(tmpdir(), 'hk-none-'))) === null);
 }
 
+// waitingItems: only unchecked lines, only in their own section.
+{
+  const w = waitingItems('## Next\n- [ ] not mine\n## Waiting on you\n<!-- c -->\n- [ ] a\n- [x] done\n  - [ ] nested b\n## Done\n- [ ] no\n');
+  t('waiting: open items only', w.length === 2 && w[0] === '- [ ] a' && w[1] === '- [ ] nested b');
+  t('waiting: last section, CRLF', waitingItems('## Waiting on you\r\n- [ ] z\r\n').length === 1);
+  t('waiting: none', waitingItems('## Next\n- [ ] x\n').length === 0);
+}
 console.log(`${fail} failures`);
 process.exit(fail ? 1 : 0);
