@@ -37,6 +37,9 @@ export function check(message, staged) {
   return warn;
 }
 
+// `git add`, or commit -a / --all, including combined short flags like -qam.
+export const stagesInCommand = (cmd) => /\bgit\s+add\b|\bcommit\b.*\s(-[a-zA-Z]*a[a-zA-Z]*|--all)\b/.test(cmd);
+
 function main() {
   let input;
   try { input = JSON.parse(readFileSync(0, 'utf8') || '{}'); } catch { return; }
@@ -48,7 +51,7 @@ function main() {
     const dir = (cmd.match(/\bgit\s+-C\s+("([^"]+)"|(\S+))/) || [])[2] || (cmd.match(/\bgit\s+-C\s+("([^"]+)"|(\S+))/) || [])[3] || input.cwd || process.cwd();
     staged = execFileSync('git', ['diff', '--cached', '--name-only'], { cwd: dir, encoding: 'utf8', timeout: 5000, stdio: ['ignore', 'pipe', 'ignore'] }).split('\n').filter(Boolean);
   } catch { return; }
-  if (/\bgit\s+add\b|\bcommit\s+(-a|--all|-am)\b/.test(cmd)) return; // staging happens in the same command; can't judge beforehand
+  if (stagesInCommand(cmd)) return; // staging happens in the same command; can't judge beforehand
   const warn = check(msg, staged);
   if (!warn.length) return;
   process.stdout.write(JSON.stringify({ hookSpecificOutput: { hookEventName: 'PreToolUse', additionalContext: `[commit-claims] Before committing, check the message against \`git diff --staged\`: ${warn.join(' ')} Fix the message or the staging if either is wrong.` } }));

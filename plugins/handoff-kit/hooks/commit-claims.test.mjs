@@ -1,5 +1,5 @@
 // Run: node commit-claims.test.mjs
-import { extractMessage, check } from './commit-claims.mjs';
+import { extractMessage, check, stagesInCommand } from './commit-claims.mjs';
 let fail = 0;
 const t = (name, cond) => { if (!cond) { fail++; console.log('FAIL', name); } };
 
@@ -18,5 +18,11 @@ t('nothing staged', check('anything', []).some((w) => /Nothing is staged/.test(w
 t('clean: file matches', check('fix: rounding in src/lib/invoiceTotal.js', ['src/lib/invoiceTotal.js']).length === 0);
 t('clean: tests staged', check('feat: add tests', ['src/lib/a.js', 'src/lib/a.test.js']).length === 0);
 t('clean: basename match', check('update invoiceTotal.js', ['src/lib/invoiceTotal.js']).length === 0);
+t('stages: -qam', stagesInCommand('git commit -qam "x"'));
+t('stages: -a', stagesInCommand('git commit -a -m "x"'));
+t('stages: --all', stagesInCommand('git commit --all -m x'));
+t('stages: git add && commit', stagesInCommand('git add -A && git commit -m x'));
+t('no stage: -m only', !stagesInCommand('git commit -qm "x"'));
+t('no stage: --amend', !stagesInCommand('git commit --amend -m x'));
 console.log(`${fail} failures`);
 process.exit(fail ? 1 : 0);
