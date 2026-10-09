@@ -1,6 +1,6 @@
 // Run: node handoff.test.mjs
-import { trimText, trimFile, archivePathFor, MARKER } from './handoff.mjs';
-import { writeFileSync, readFileSync, mkdtempSync, existsSync } from 'node:fs';
+import { trimText, trimFile, archivePathFor, findHandoff, MARKER } from './handoff.mjs';
+import { writeFileSync, readFileSync, mkdtempSync, existsSync, mkdirSync, utimesSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 let fail = 0;
@@ -75,6 +75,23 @@ t('archived entries present', arch.includes('done-19'));
 t('handoff on disk shrank', Buffer.byteLength(readFileSync(p, 'utf8')) <= size - 1000 && res.moved > 0);
 t('second run no-op', trimFile(p, size - 1000) === null);
 t('no tmp file left', !existsSync(p + '.tmp'));
+
+// findHandoff: a stale snapshot beside the live file must not win.
+{
+  const r = mkdtempSync(join(tmpdir(), 'hk-find-'));
+  mkdirSync(join(r, 'docs'));
+  writeFileSync(join(r, 'HANDOFF.md'), 'old snapshot');
+  writeFileSync(join(r, 'docs/AI-HANDOFF.md'), 'live');
+  utimesSync(join(r, 'HANDOFF.md'), new Date(2026, 0, 1), new Date(2026, 0, 1));
+  t('newest candidate wins', findHandoff(r).endsWith('AI-HANDOFF.md'));
+  writeFileSync(join(r, 'HANDOFF.md'), MARKER + ' marked');
+  utimesSync(join(r, 'HANDOFF.md'), new Date(2026, 0, 1), new Date(2026, 0, 1));
+  t('marker beats newer', findHandoff(r).endsWith(join(r, 'HANDOFF.md').slice(-10)) && !findHandoff(r).includes('AI-'));
+  process.env.HANDOFF_PATH = 'docs/AI-HANDOFF.md';
+  t('HANDOFF_PATH wins', findHandoff(r).endsWith('AI-HANDOFF.md'));
+  delete process.env.HANDOFF_PATH;
+  t('none: null', findHandoff(mkdtempSync(join(tmpdir(), 'hk-none-'))) === null);
+}
 
 console.log(`${fail} failures`);
 process.exit(fail ? 1 : 0);

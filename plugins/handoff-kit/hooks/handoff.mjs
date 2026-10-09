@@ -24,15 +24,16 @@ export function repoRoot(cwd) {
   } catch { return cwd; }
 }
 
-// HANDOFF_PATH (relative to the repo root) wins; otherwise the first candidate that exists.
+// HANDOFF_PATH (relative to the repo root) wins. Otherwise a candidate carrying the marker,
+// then the most recently modified one: repos often keep an old snapshot beside the live file.
 export function findHandoff(cwd) {
   const root = repoRoot(cwd);
-  const list = process.env.HANDOFF_PATH ? [process.env.HANDOFF_PATH] : CANDIDATES;
-  for (const rel of list) {
-    const p = resolve(root, rel);
-    if (existsSync(p) && statSync(p).isFile()) return p;
-  }
-  return null;
+  const found = (process.env.HANDOFF_PATH ? [process.env.HANDOFF_PATH] : CANDIDATES)
+    .map((rel) => resolve(root, rel))
+    .filter((p) => existsSync(p) && statSync(p).isFile());
+  if (found.length < 2) return found[0] ?? null;
+  const marked = found.find((p) => readFileSync(p, 'utf8').includes(MARKER));
+  return marked ?? found.sort((a, b) => statSync(b).mtimeMs - statSync(a).mtimeMs)[0];
 }
 
 export const archivePathFor = (p) => join(dirname(p), basename(p, extname(p)) + '-archive' + extname(p));
