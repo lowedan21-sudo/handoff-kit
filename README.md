@@ -29,7 +29,7 @@ Compacting earlier only helps if nothing important is lost when it happens. This
 ## Install
 
 ```
-claude plugin marketplace add <path-or-git-url-of-this-repo>
+claude plugin marketplace add lowedan21-sudo/handoff-kit
 claude plugin install handoff-kit@handoff-kit
 ```
 
