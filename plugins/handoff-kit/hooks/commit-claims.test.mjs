@@ -4,6 +4,8 @@ let fail = 0;
 const t = (name, cond) => { if (!cond) { fail++; console.log('FAIL', name); } };
 
 t('not a commit', extractMessage('git status') === null);
+t('git rm of a file named commit-*', extractMessage('git rm -q hooks/commit-claims.mjs') === null);
+t('git -c opt commit', extractMessage('git -c core.autocrlf=false commit -qm "x"') === 'x');
 t('-m double quotes', extractMessage('git commit -m "fix invoiceTotal rounding"') === 'fix invoiceTotal rounding');
 t('-m single quotes', extractMessage("git commit -m 'docs: x'") === 'docs: x');
 t('heredoc -F -', /adds tests/.test(extractMessage("git commit -F - <<'EOF'\nfeat: adds tests for taxRate\nEOF")));

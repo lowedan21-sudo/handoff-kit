@@ -8,7 +8,8 @@ import { readFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 
 export function extractMessage(cmd) {
-  if (!/\bgit\b[^;&|]*\bcommit\b/.test(cmd) || /--amend\b.*--no-edit/.test(cmd)) return null;
+  // `commit` must be git's subcommand (after global options), not a word later in the line.
+  if (!/\bgit(?:\s+-[cC]\s+\S+|\s+--?[\w-]+(?:=\S+)?)*\s+commit\b/.test(cmd) || /--amend\b.*--no-edit/.test(cmd)) return null;
   const parts = [];
   const re = /(?:^|\s)(?:-m|--message)(?:\s+|=)("([^"\\]|\\.)*"|'[^']*'|\S+)/g;
   let m;
